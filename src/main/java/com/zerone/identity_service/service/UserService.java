@@ -1,58 +1,55 @@
 package com.zerone.identity_service.service;
 
-import com.zerone.identity_service.dto.CreateUserRequest;
-import com.zerone.identity_service.dto.UpdateUserRequest;
+import com.zerone.identity_service.dto.request.CreateUserRequest;
+import com.zerone.identity_service.dto.request.UpdateUserRequest;
+import com.zerone.identity_service.dto.response.UserResponse;
 import com.zerone.identity_service.entity.User;
 import com.zerone.identity_service.exception.AppException;
 import com.zerone.identity_service.exception.ErrorCode;
+import com.zerone.identity_service.mapper.UserMapper;
 import com.zerone.identity_service.repository.UserRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
+    UserMapper userMapper;
 
     public User userCreate(CreateUserRequest request) {
-        User user = new User();
 
-        if(userRepository.existsByUsername(request.getUsername())){
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setEmail(request.getEmail());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setDob(request.getDob());
-        user.setAddress(request.getAddress());
+
+        User user = userMapper.toUser(request);
 
         return userRepository.save(user);
     }
 
-    public User userUpdate(String userId, UpdateUserRequest request) {
-        User user = userGetById(userId);
+    public UserResponse userUpdate(String userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setPassword(request.getPassword());
-        user.setEmail(request.getEmail());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setDob(request.getDob());
-        user.setAddress(request.getAddress());
+        userMapper.updateUser(user, request);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     public List<User> userGetAll() {
         return userRepository.findAll();
     }
 
-    public User userGetById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+    public UserResponse userGetById(String userId) {
+        return userMapper.toUserResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!")));
     }
 
     public void userDelete(String userId) {
