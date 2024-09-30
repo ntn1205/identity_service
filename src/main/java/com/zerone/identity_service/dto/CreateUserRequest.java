@@ -1,10 +1,16 @@
 package com.zerone.identity_service.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 
 public class CreateUserRequest {
+    @Size(min = 3, message = "Username must be at least 3 characters")
     private String username;
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
+    @Email
     private String email;
     private String firstName;
     private String lastName;

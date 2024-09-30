@@ -5,6 +5,7 @@ import com.zerone.identity_service.dto.CreateUserRequest;
 import com.zerone.identity_service.dto.UpdateUserRequest;
 import com.zerone.identity_service.entity.User;
 import com.zerone.identity_service.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    User createUser(@RequestBody CreateUserRequest request) {
+    User createUser(@RequestBody @Valid CreateUserRequest request) {
         return userService.userCreate(request);
     }
 
