@@ -1,6 +1,7 @@
 package com.zerone.identity_service.controller;
 
 
+import com.zerone.identity_service.dto.ApiResponse;
 import com.zerone.identity_service.dto.CreateUserRequest;
 import com.zerone.identity_service.dto.UpdateUserRequest;
 import com.zerone.identity_service.entity.User;
@@ -18,8 +19,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    User createUser(@RequestBody @Valid CreateUserRequest request) {
-        return userService.userCreate(request);
+    ApiResponse<User> createUser(@RequestBody @Valid CreateUserRequest request) {
+        ApiResponse<User> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(1000);
+        apiResponse.setMessage("Create user successfully.");
+        apiResponse.setResult(userService.userCreate(request));
+        return apiResponse;
     }
 
     @PutMapping("/{userId}")
